@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hms_room_kit/hms_room_kit.dart';
+import 'package:video_call/lawyer_list.dart';
+
+import 'category.dart';
+import 'login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +36,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: LoginPage(),
     );
   }
 }
@@ -78,30 +83,29 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-       body: Center(
-         child: ElevatedButton(
-           style: ButtonStyle(
-               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                   RoundedRectangleBorder(
-             borderRadius: BorderRadius.circular(8.0),
-           ))),
-           onPressed: () async => {
-             await Navigator.push(
-               context,
-               MaterialPageRoute(
-                 builder: (context) => HMSPrebuilt(roomCode: "jle-wjbx-gyk")
-               ),
-             ),
-           },
-           child: const Padding(
-             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-             child: Text(
-               'Join',
-               style: TextStyle(fontSize: 20),
-             ),
-           ),
-         ),
-       ),
-     );
+      body: Center(
+        child: ElevatedButton(
+          style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ))),
+          onPressed: () async => {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HMSPrebuilt(roomCode: "jle-wjbx-gyk")),
+            ),
+          },
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Text(
+              'Join',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

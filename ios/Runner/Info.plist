@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>WeLaw ต้องการเข้าถึงไมโครโฟนเพื่อใช้ในการสนทนาผ่านวิดีโอคอล</string>
+	<key>NSCameraUsageDescription</key>
+	<string>WeLaw ต้องการเข้าถึงกล้องเพื่อให้คุณสามารถวิดีโอคอลกับทนายได้</string>
+
 </dict>
 </plist>

@@ -1,0 +1,2 @@
+/Users/macbookpro/Sources/video_call_solution_2025/android/app/.cxx/RelWithDebInfo/2k1448ml/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/macbookpro/Sources/video_call_solution_2025/android/app/.cxx/RelWithDebInfo/2k1448ml/armeabi-v7a/CMakeFiles/rebuild_cache.dir

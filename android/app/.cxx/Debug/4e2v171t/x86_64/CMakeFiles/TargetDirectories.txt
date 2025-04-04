@@ -1,0 +1,2 @@
+/Users/macbookpro/Sources/video_call_solution_2025/android/app/.cxx/Debug/4e2v171t/x86_64/CMakeFiles/edit_cache.dir
+/Users/macbookpro/Sources/video_call_solution_2025/android/app/.cxx/Debug/4e2v171t/x86_64/CMakeFiles/rebuild_cache.dir
