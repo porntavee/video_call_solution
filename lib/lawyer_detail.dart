@@ -287,14 +287,6 @@ class _LawyerDetailPageState extends State<LawyerDetailPage> {
                           );
 
                           if (selectedTime != null) {
-                            final DateTime finalDateTime = DateTime(
-                              selectedDate.year,
-                              selectedDate.month,
-                              selectedDate.day,
-                              selectedTime.hour,
-                              selectedTime.minute,
-                            );
-
                             // ✅ บันทึกการจอง หรือแสดง dialog ยืนยัน
                             showDialog(
                               context: context,

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hms_room_kit/hms_room_kit.dart';
-import 'package:video_call/lawyer_list.dart';
 
-import 'category.dart';
 import 'login.dart';
 
 void main() {

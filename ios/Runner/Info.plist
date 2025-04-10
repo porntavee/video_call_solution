@@ -49,9 +49,8 @@
 		<string>WeLaw ต้องการเข้าถึงไมโครโฟนเพื่อใช้ในการสนทนาผ่านวิดีโอคอล</string>
 		<key>NSCameraUsageDescription</key>
 		<string>WeLaw ต้องการเข้าถึงกล้องเพื่อให้คุณสามารถวิดีโอคอลกับทนายได้</string>
-		<key>NSLocalNetworkUsageDescription</key>
-		<string>WeLaw App wants to use your local network</string>
-		
+		<key>NSBluetoothPeripheralUsageDescription</key>
+		<string>WeLaw ต้องการเข้าถึงไมโครโฟนเพื่อใช้ในการสนทนาผ่านวิดีโอคอล</string>
 		<key>NSBluetoothAlwaysUsageDescription</key>
 		<string>WeLaw needs access to bluetooth to connect to nearby devices.</string>
 

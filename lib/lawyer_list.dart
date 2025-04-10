@@ -608,7 +608,7 @@ class LawyerListPage extends StatelessWidget {
 }
 
 class _BlinkingDot extends StatefulWidget {
-  const _BlinkingDot({super.key});
+  const _BlinkingDot();
 
   @override
   State<_BlinkingDot> createState() => _BlinkingDotState();

@@ -106,7 +106,8 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategorySelectionPage(),
+                              builder: (context) =>
+                                  const CategorySelectionPage(),
                             ),
                           );
                         },
@@ -121,7 +122,8 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategorySelectionPage(),
+                              builder: (context) =>
+                                  const CategorySelectionPage(),
                             ),
                           );
                         },
@@ -136,7 +138,8 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategorySelectionPage(),
+                              builder: (context) =>
+                                  const CategorySelectionPage(),
                             ),
                           );
                         },
@@ -151,7 +154,8 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategorySelectionPage(),
+                              builder: (context) =>
+                                  const CategorySelectionPage(),
                             ),
                           );
                         },
@@ -166,7 +170,7 @@ class LoginPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CategorySelectionPage(),
+                            builder: (context) => const CategorySelectionPage(),
                           ),
                         );
                       },

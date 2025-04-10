@@ -252,6 +252,7 @@ class _CategorySelectionPageState extends State<CategorySelectionPage>
       final statuses = await [
         Permission.camera,
         Permission.microphone,
+        Permission.bluetooth
       ].request();
 
       if (statuses[Permission.camera]!.isPermanentlyDenied ||
