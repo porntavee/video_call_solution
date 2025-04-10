@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hms_room_kit/hms_room_kit.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'chat.dart';
 import 'lawyer_detail.dart';
 import 'secure_bypass_image.dart';
 
@@ -464,20 +466,49 @@ class LawyerListPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                _showReminderBeforeJoin(context);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF7B61FF),
-                                  shape: BoxShape.circle,
+                            Row(
+                              children: [
+                                // ปุ่ม Video Call เดิม
+                                GestureDetector(
+                                  onTap: () {
+                                    _showReminderBeforeJoin(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF7B61FF),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.video_call,
+                                        color: Colors.white),
+                                  ),
                                 ),
-                                child: const Icon(Icons.video_call,
-                                    color: Colors.white),
-                              ),
-                            )
+                                const SizedBox(width: 10),
+                                // ✅ ปุ่ม Chat ใหม่
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatPage(
+                                          lawyerName: lawyer["name"]!,
+                                          lawyerImageUrl: lawyer["imageUrl"]!,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF4CAF50),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.chat,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -505,16 +536,68 @@ class LawyerListPage extends StatelessWidget {
             child: const Text("ยกเลิก"),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop(); // ปิด dialog
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HMSPrebuilt(
-                    roomCode: "jle-wjbx-gyk",
+
+              Map<Permission, PermissionStatus> statuses = await [
+                Permission.camera,
+                Permission.microphone,
+              ].request();
+
+              // ถ้าโดนปฏิเสธแบบถาวร (iOS จะไม่ถามซ้ำ)
+              if (statuses.values.any((s) => s.isPermanentlyDenied)) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("ต้องเปิดการเข้าถึงใน Settings"),
+                    content: const Text(
+                        "กรุณาไปที่การตั้งค่า แล้วอนุญาตให้แอปเข้าถึงกล้องและไมโครโฟน"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("ยกเลิก"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          openAppSettings(); // เปิดหน้า Settings
+                        },
+                        child: const Text("เปิดการตั้งค่า"),
+                      ),
+                    ],
                   ),
-                ),
-              );
+                );
+                return;
+              }
+
+              bool allGranted =
+                  statuses.values.every((status) => status.isGranted);
+
+              if (allGranted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HMSPrebuilt(
+                      roomCode: "jle-wjbx-gyk",
+                    ),
+                  ),
+                );
+              } else {
+                // แจ้งเตือนทั่วไป
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("การอนุญาตถูกปฏิเสธ"),
+                    content: const Text(
+                        "กรุณาอนุญาตให้เข้าถึงกล้องและไมโครโฟนเพื่อใช้งานวิดีโอคอล"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("ตกลง"),
+                      ),
+                    ],
+                  ),
+                );
+              }
             },
             child: const Text("เข้าใช้งาน"),
           ),

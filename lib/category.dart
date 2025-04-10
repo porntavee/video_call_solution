@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:video_call/profile.dart';
 import 'lawyer_list.dart';
+import 'notification.dart';
 import 'secure_bypass_image.dart';
 
 // class CategorySelectionPage extends StatelessWidget {
@@ -233,12 +236,29 @@ class _CategorySelectionPageState extends State<CategorySelectionPage>
     );
 
     _controller.forward(); // Start animation
+
+    _requestPermissions();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _requestPermissions() async {
+    if (await Permission.camera.isDenied ||
+        await Permission.microphone.isDenied) {
+      final statuses = await [
+        Permission.camera,
+        Permission.microphone,
+      ].request();
+
+      if (statuses[Permission.camera]!.isPermanentlyDenied ||
+          statuses[Permission.microphone]!.isPermanentlyDenied) {
+        openAppSettings(); // เปิด Settings หากถูกปฏิเสธแบบถาวร
+      }
+    }
   }
 
   @override
@@ -250,6 +270,40 @@ class _CategorySelectionPageState extends State<CategorySelectionPage>
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
+        actions: [
+          // 🔔 ปุ่มกระดิ่ง
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationPage()),
+              );
+            },
+          ),
+          // 🧑‍⚖️ ปุ่มโปรไฟล์
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
+              child: ClipOval(
+                child: SecureBypassImage(
+                  imageUrl:
+                      "https://gateway.we-builds.com/wb-py-media/uploads/lawyer\\20250408-153949-Art Toy พี่หมู.png",
+                  width: 36,
+                  height: 36,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [

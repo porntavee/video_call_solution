@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hms_room_kit/hms_room_kit.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:video_call/chat.dart';
 
+import 'rating_row.dart';
 import 'secure_bypass_image.dart';
 
-class LawyerDetailPage extends StatelessWidget {
+class LawyerDetailPage extends StatefulWidget {
   final String name;
   final String imageUrl;
   final String location;
@@ -14,8 +17,125 @@ class LawyerDetailPage extends StatelessWidget {
     required this.name,
     required this.imageUrl,
     required this.location,
-    required this.rating,
+    this.rating = 4.2,
   });
+
+  @override
+  State<LawyerDetailPage> createState() => _LawyerDetailPageState();
+}
+
+class _LawyerDetailPageState extends State<LawyerDetailPage> {
+  final TextEditingController _commentController = TextEditingController();
+  final List<Map<String, String>> _comments = [
+    {
+      "user": "คุณณัฐ",
+      "message": "ให้คำปรึกษาดีมาก เข้าใจง่าย 👍",
+    },
+    {
+      "user": "คุณแอน",
+      "message": "ตอบไวและชัดเจน ประทับใจครับ",
+    },
+    {
+      "user": "คุณบอส",
+      "message": "แนะนำได้ตรงจุด ช่วยคลายความกังวลได้เยอะเลย ❤️",
+    },
+  ];
+
+  void _addComment() {
+    final text = _commentController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        _comments.insert(0, {
+          "user": "คุณผู้ใช้", // 👈 หรือใช้ชื่อจริงจากระบบก็ได้
+          "message": text,
+        });
+        _commentController.clear();
+      });
+    }
+  }
+
+  void _showReminderBeforeJoin(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("คำแนะนำก่อนเข้าห้อง"),
+        content: const Text(
+            "📌 กรุณาระบุชื่อในช่อง Enter Name ว่า 1234 ก่อนกด Join Now"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("ยกเลิก"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // ปิด dialog
+
+              Map<Permission, PermissionStatus> statuses = await [
+                Permission.camera,
+                Permission.microphone,
+              ].request();
+
+              // ถ้าโดนปฏิเสธแบบถาวร (iOS จะไม่ถามซ้ำ)
+              if (statuses.values.any((s) => s.isPermanentlyDenied)) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("ต้องเปิดการเข้าถึงใน Settings"),
+                    content: const Text(
+                        "กรุณาไปที่การตั้งค่า แล้วอนุญาตให้แอปเข้าถึงกล้องและไมโครโฟน"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("ยกเลิก"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          openAppSettings(); // เปิดหน้า Settings
+                        },
+                        child: const Text("เปิดการตั้งค่า"),
+                      ),
+                    ],
+                  ),
+                );
+                return;
+              }
+
+              bool allGranted =
+                  statuses.values.every((status) => status.isGranted);
+
+              if (allGranted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HMSPrebuilt(
+                      roomCode: "jle-wjbx-gyk",
+                    ),
+                  ),
+                );
+              } else {
+                // แจ้งเตือนทั่วไป
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("การอนุญาตถูกปฏิเสธ"),
+                    content: const Text(
+                        "กรุณาอนุญาตให้เข้าถึงกล้องและไมโครโฟนเพื่อใช้งานวิดีโอคอล"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("ตกลง"),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            child: const Text("เข้าใช้งาน"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +146,18 @@ class LawyerDetailPage extends StatelessWidget {
         elevation: 0,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: SecureBypassImage(
-                imageUrl: imageUrl,
+                imageUrl: widget.imageUrl,
                 width: double.infinity,
                 height: 300,
                 borderRadius: BorderRadius.circular(0),
               ),
-
-              // Image.network(
-              //   imageUrl,
-              //   height: 300,
-              //   width: double.infinity,
-              //   fit: BoxFit.cover,
-              // ),
             ),
             const SizedBox(height: 20),
             Container(
@@ -57,7 +170,7 @@ class LawyerDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    widget.name,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -66,37 +179,11 @@ class LawyerDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    location,
+                    widget.location,
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Text(
-                        "Rating ",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        rating.toStringAsFixed(2),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < rating.round()
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: Colors.amber,
-                            size: 22,
-                          );
-                        }),
-                      )
-                    ],
-                  ),
+                  RatingRow(initialRating: widget.rating),
                   const SizedBox(height: 20),
                   Row(
                     children: [
@@ -108,9 +195,7 @@ class LawyerDetailPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () {
-                            // TODO: ทำการจ้างทนาย
-                          },
+                          onPressed: () {},
                           child: ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(
                               colors: [Color(0xFFFF8A65), Color(0xFFFFC107)],
@@ -129,58 +214,189 @@ class LawyerDetailPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () async {
-                          _showReminderBeforeJoin(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF7B61FF),
-                            shape: BoxShape.circle,
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showReminderBeforeJoin(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF7B61FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.video_call,
+                                  color: Colors.white),
+                            ),
                           ),
-                          child:
-                              const Icon(Icons.video_call, color: Colors.white),
-                        ),
-                      )
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatPage(
+                                    lawyerName: widget.name,
+                                    lawyerImageUrl: widget.imageUrl,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4CAF50),
+                                shape: BoxShape.circle,
+                              ),
+                              child:
+                                  const Icon(Icons.chat, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  )
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4A90E2),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 14),
+                      ),
+                      onPressed: () async {
+                        final selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate:
+                              DateTime.now().add(const Duration(days: 1)),
+                          firstDate: DateTime.now(),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 30)),
+                        );
+
+                        if (selectedDate != null) {
+                          final selectedTime = await showTimePicker(
+                            context: context,
+                            initialTime: const TimeOfDay(hour: 10, minute: 0),
+                          );
+
+                          if (selectedTime != null) {
+                            final DateTime finalDateTime = DateTime(
+                              selectedDate.year,
+                              selectedDate.month,
+                              selectedDate.day,
+                              selectedTime.hour,
+                              selectedTime.minute,
+                            );
+
+                            // ✅ บันทึกการจอง หรือแสดง dialog ยืนยัน
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("ยืนยันการจอง"),
+                                content: Text(
+                                  "คุณจองเวลา ${selectedTime.format(context)} วันที่ ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("ตกลง"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon:
+                          const Icon(Icons.calendar_today, color: Colors.white),
+                      label: const Text("จองวัน/เวลา",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
                 ],
               ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showReminderBeforeJoin(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("คำแนะนำก่อนเข้าห้อง"),
-        content: const Text(
-            "📌 กรุณาระบุชื่อในช่อง Enter Name ว่า 1234 ก่อนกด Join Now"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("ยกเลิก"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // ปิด dialog
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HMSPrebuilt(
-                    roomCode: "jle-wjbx-gyk",
+            ),
+            const SizedBox(height: 24),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "ความคิดเห็นจากผู้ใช้",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ..._comments.map(
+              (comment) => Container(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2C2C3E),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.person, color: Colors.white54),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(comment["user"]!,
+                              style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13)),
+                          const SizedBox(height: 2),
+                          Text(comment["message"]!,
+                              style: const TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _commentController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "แสดงความคิดเห็น...",
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: const Color(0xFF2C2C3E),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 12),
+                    ),
                   ),
                 ),
-              );
-            },
-            child: const Text("เข้าใช้งาน"),
-          ),
-        ],
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Colors.white),
+                  onPressed: _addComment,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
